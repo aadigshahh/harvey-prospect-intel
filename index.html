@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Harvey · Prospect Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #080B0F;
+      --surface: #0F1419;
+      --text:    #F0EDE8;
+      --accent:  #C4A882;
+      --border:  rgba(255,255,255,0.08);
+      --muted:   rgba(240,237,232,0.36);
+      --body:    rgba(240,237,232,0.78);
+      --green:   #5CB87A;
+      --red:     rgba(220,80,80,0.85);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 400;
+      min-height: 100vh;
+    }
+
+    /* ── Header ──────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-name {
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-divider {
+      width: 1px;
+      height: 13px;
+      background: rgba(255,255,255,0.14);
+    }
+
+    .brand-sub {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .api-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .api-label {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .api-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 300;
+      padding: 7px 12px;
+      width: 220px;
+      outline: none;
+      transition: border-color 0.12s;
+      letter-spacing: 0.02em;
+    }
+    .api-input:focus { border-color: var(--accent); }
+    .api-input::placeholder { color: rgba(240,237,232,0.18); }
+
+    /* ── Main ────────────────────────────────────────────────── */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 72px 40px 160px;
+    }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    .hero {
+      margin-bottom: 44px;
+    }
+
+    .hero-headline {
+      font-size: 30px;
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      line-height: 1.28;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .hero-sub {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Search ──────────────────────────────────────────────── */
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 300;
+      padding: 19px 100px 19px 22px;
+      outline: none;
+      transition: border-color 0.12s;
+      letter-spacing: 0.01em;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input:disabled { opacity: 0.5; cursor: not-allowed; }
+    .search-input::placeholder { color: rgba(240,237,232,0.18); }
+
+    .search-hint {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(240,237,232,0.20);
+      letter-spacing: 0.08em;
+      pointer-events: none;
+      user-select: none;
+      transition: opacity 0.1s;
+    }
+
+    /* ── Recents ─────────────────────────────────────────────── */
+    .recents-row {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .recents-row.visible { display: flex; }
+
+    .recents-label {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(240,237,232,0.26);
+      flex-shrink: 0;
+    }
+
+    .chip {
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(240,237,232,0.45);
+      border: 1px solid var(--border);
+      background: transparent;
+      padding: 4px 12px;
+      cursor: pointer;
+      transition: color 0.1s, border-color 0.1s;
+      letter-spacing: 0.02em;
+      user-select: none;
+    }
+    .chip:hover {
+      color: var(--accent);
+      border-color: rgba(196,168,130,0.30);
+    }
+
+    /* ── Loading ─────────────────────────────────────────────── */
+    .loading-row {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      margin-top: 40px;
+    }
+    .loading-row.visible { display: flex; }
+
+    .loading-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      animation: blink 1.4s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.2; }
+      50%       { opacity: 1; }
+    }
+
+    .loading-text {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Error ───────────────────────────────────────────────── */
+    .error-bar {
+      display: none;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--red);
+      margin-top: 28px;
+      letter-spacing: 0.02em;
+      padding-left: 14px;
+      border-left: 2px solid var(--red);
+    }
+    .error-bar.visible { display: block; }
+
+    /* ── Results ─────────────────────────────────────────────── */
+    .results {
+      display: none;
+      margin-top: 56px;
+    }
+    .results.visible { display: block; }
+
+    .results-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .results-firm {
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .copy-btn {
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 8px 18px;
+      cursor: pointer;
+      transition: color 0.1s, border-color 0.1s;
+    }
+    .copy-btn:hover {
+      color: var(--accent);
+      border-color: rgba(196,168,130,0.30);
+    }
+
+    .results-meta {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(240,237,232,0.22);
+      letter-spacing: 0.04em;
+      padding-bottom: 24px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Cards ───────────────────────────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 2px solid rgba(196,168,130,0.50);
+      padding: 26px 28px 28px;
+    }
+    .card.span2 { grid-column: 1 / -1; }
+
+    .card-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+
+    .card-body {
+      font-size: 13.5px;
+      font-weight: 300;
+      color: var(--body);
+      line-height: 1.76;
+    }
+
+    /* ── Readiness card ──────────────────────────────────────── */
+    .score-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .score-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .score-num {
+      font-size: 80px;
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      flex-shrink: 0;
+    }
+    .score-num.high { color: var(--green); }
+    .score-num.mid  { color: var(--accent); }
+    .score-num.low  { color: rgba(240,237,232,0.26); }
+
+    .score-aside {
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .score-denom {
+      font-size: 12px;
+      font-weight: 300;
+      color: rgba(240,237,232,0.28);
+      letter-spacing: 0.06em;
+    }
+
+    .score-label-text {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    /* Gauge */
+    .score-gauge-track {
+      height: 2px;
+      background: rgba(255,255,255,0.07);
+      width: 100%;
+    }
+
+    .score-gauge-fill {
+      height: 2px;
+      width: 0;
+      transition: width 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .score-gauge-fill.high { background: var(--green); }
+    .score-gauge-fill.mid  { background: var(--accent); }
+    .score-gauge-fill.low  { background: rgba(240,237,232,0.26); }
+
+    .score-reason {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(240,237,232,0.55);
+      line-height: 1.68;
+    }
+
+    /* ── Talking points ──────────────────────────────────────── */
+    .tp-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tp {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .tp:first-child { padding-top: 0; }
+    .tp:last-child  { border-bottom: none; padding-bottom: 0; }
+
+    .tp-num {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.10em;
+      color: var(--accent);
+      flex-shrink: 0;
+      padding-top: 3px;
+      min-width: 20px;
+    }
+
+    .tp-text {
+      font-size: 13.5px;
+      font-weight: 300;
+      color: var(--body);
+      line-height: 1.72;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding: 10px 40px;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(240,237,232,0.17);
+      letter-spacing: 0.04em;
+    }
+
+    footer a {
+      color: rgba(240,237,232,0.17);
+      text-decoration: none;
+    }
+    footer a:hover { color: rgba(240,237,232,0.36); }
+
+    /* ── Provider badge ─────────────────────────────────────────── */
+    .provider-badge {
+      display: none;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .provider-badge.visible    { display: inline; }
+    .provider-badge.anthropic  { color: var(--accent); border-color: rgba(196,168,130,0.30); }
+    .provider-badge.openai     { color: #74AA9C;       border-color: rgba(116,170,156,0.30); }
+    .provider-badge.perplexity { color: #7B9FE0;       border-color: rgba(123,159,224,0.30); }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 660px) {
+      header { padding: 16px 20px; }
+      main   { padding: 48px 20px 120px; }
+      .grid  { grid-template-columns: 1fr; }
+      .card.span2 { grid-column: 1; }
+      .api-input  { width: 140px; }
+      .hero-headline { font-size: 22px; }
+      .score-num  { font-size: 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="brand">
+    <span class="brand-name">Harvey</span>
+    <div class="brand-divider"></div>
+    <span class="brand-sub">Prospect Intelligence</span>
+  </div>
+  <div class="api-row">
+    <span class="api-label">API Key</span>
+    <input
+      id="apiKeyInput"
+      class="api-input"
+      type="password"
+      placeholder="Anthropic, OpenAI, or Perplexity key"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <span id="providerBadge" class="provider-badge"></span>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-headline">Research any firm.<br>Walk into every meeting prepared.</div>
+    <div class="hero-sub">Real-time web search. Structured for Harvey's sales team.</div>
+  </div>
+
+  <!-- Search -->
+  <div>
+    <div class="search-wrap">
+      <input
+        id="searchInput"
+        class="search-input"
+        type="text"
+        placeholder="Enter a law firm or legal team..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <span class="search-hint" id="searchHint">↵ Enter</span>
+    </div>
+    <div id="recentsRow" class="recents-row">
+      <span class="recents-label">Recent</span>
+      <div id="chipsWrap"></div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingRow" class="loading-row">
+    <div class="loading-dot"></div>
+    <span id="loadingText" class="loading-text"></span>
+  </div>
+
+  <!-- Error -->
+  <div id="errorBar" class="error-bar"></div>
+
+  <!-- Results -->
+  <div id="results" class="results">
+
+    <div class="results-top">
+      <div id="firmName" class="results-firm"></div>
+      <button id="copyBtn" class="copy-btn">Copy Brief</button>
+    </div>
+    <div id="resultsMeta" class="results-meta"></div>
+
+    <div class="grid">
+
+      <!-- 1. Readiness Score -->
+      <div class="card span2">
+        <div class="card-label">Readiness Score</div>
+        <div class="score-layout">
+          <div class="score-top">
+            <div id="scoreNum" class="score-num"></div>
+            <div class="score-aside">
+              <div class="score-denom">out of 10</div>
+              <div id="scoreLabel" class="score-label-text"></div>
+            </div>
+          </div>
+          <div class="score-gauge-track">
+            <div id="scoreGauge" class="score-gauge-fill"></div>
+          </div>
+          <div id="scoreReason" class="score-reason"></div>
+        </div>
+      </div>
+
+      <!-- 2. Firm Overview -->
+      <div class="card">
+        <div class="card-label">Firm Overview</div>
+        <div id="overview" class="card-body"></div>
+      </div>
+
+      <!-- 3. Recent Activity -->
+      <div class="card">
+        <div class="card-label">Recent Activity</div>
+        <div id="recentActivity" class="card-body"></div>
+      </div>
+
+      <!-- 4. AI & Tech Signals -->
+      <div class="card">
+        <div class="card-label">AI &amp; Tech Signals</div>
+        <div id="techSignals" class="card-body"></div>
+      </div>
+
+      <!-- 5. Harvey Fit -->
+      <div class="card">
+        <div class="card-label">Harvey Fit</div>
+        <div id="harveyFit" class="card-body"></div>
+      </div>
+
+      <!-- 6. AE Talking Points -->
+      <div class="card span2">
+        <div class="card-label">AE Talking Points</div>
+        <div id="talkingPoints" class="tp-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>Built by Aadi Shah &middot; USC '27 &middot;
+    <a href="https://linkedin.com/in/aadigshah" target="_blank" rel="noopener">linkedin.com/in/aadigshah</a>
+  </p>
+</footer>
+
+<script>
+  // ── Constants ────────────────────────────────────────────────────────────
+  const KEY_API      = 'harvey_api_key';
+  const KEY_RECENTS  = 'harvey_recents';
+  const MAX_RECENTS  = 5;
+  const TIMEOUT_MS   = 90_000;
+
+  const SYSTEM_PROMPT =
+    "You are a GTM research assistant for Harvey AI, a legal AI platform used by 60+ AmLaw 100 firms. " +
+    "Your job is to help Harvey's sales team prepare for prospect meetings. " +
+    "Search the web for current, specific information about the given firm or legal team. " +
+    "Return ONLY a JSON object with these exact keys: " +
+    "readinessScore (integer 1-10), readinessLabel (string), readinessReason (one sentence), " +
+    "overview (string), recentActivity (string), techSignals (string), " +
+    "harveyFit (string), talkingPoints (array of exactly 3 strings). " +
+    "Be specific and factual. Pull real data. No filler.";
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const $apiKey        = document.getElementById('apiKeyInput');
+  const $providerBadge = document.getElementById('providerBadge');
+  const $search        = document.getElementById('searchInput');
+  const $searchHint    = document.getElementById('searchHint');
+  const $recentsRow    = document.getElementById('recentsRow');
+  const $chipsWrap     = document.getElementById('chipsWrap');
+  const $loadingRow    = document.getElementById('loadingRow');
+  const $loadingText   = document.getElementById('loadingText');
+  const $errorBar      = document.getElementById('errorBar');
+  const $results       = document.getElementById('results');
+  const $firmName      = document.getElementById('firmName');
+  const $resultsMeta   = document.getElementById('resultsMeta');
+  const $scoreNum      = document.getElementById('scoreNum');
+  const $scoreLabel    = document.getElementById('scoreLabel');
+  const $scoreGauge    = document.getElementById('scoreGauge');
+  const $scoreReason   = document.getElementById('scoreReason');
+  const $overview      = document.getElementById('overview');
+  const $activity      = document.getElementById('recentActivity');
+  const $tech          = document.getElementById('techSignals');
+  const $fit           = document.getElementById('harveyFit');
+  const $tpList        = document.getElementById('talkingPoints');
+  const $copyBtn       = document.getElementById('copyBtn');
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  let abortCtrl = null;
+  let isLoading = false;
+
+  // ── Provider detection ────────────────────────────────────────────────────
+  // Auto-detect from key prefix — no dropdown needed
+  function detectProvider(key) {
+    if (key.startsWith('sk-ant-')) return 'anthropic';
+    if (key.startsWith('pplx-'))   return 'perplexity';
+    if (key.startsWith('sk-'))     return 'openai';
+    return null;
+  }
+
+  function updateProviderBadge(key) {
+    const p = detectProvider(key);
+    const labels = { anthropic: 'Anthropic', openai: 'OpenAI', perplexity: 'Perplexity' };
+    if (p) {
+      $providerBadge.textContent = labels[p];
+      $providerBadge.className   = `provider-badge visible ${p}`;
+    } else {
+      $providerBadge.className   = 'provider-badge';
+    }
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  (function init() {
+    // URL param takes priority — lets you share a pre-keyed link
+    const urlKey = new URLSearchParams(location.search).get('key');
+    const key    = urlKey || localStorage.getItem(KEY_API) || '';
+    if (key) {
+      $apiKey.value = key;
+      try { localStorage.setItem(KEY_API, key); } catch (_) {}
+      updateProviderBadge(key);
+      // Clean key out of URL bar without reloading so it's not in browser history
+      if (urlKey) history.replaceState(null, '', location.pathname);
+    }
+    renderRecents();
+  })();
+
+  // ── API key persistence ───────────────────────────────────────────────────
+  $apiKey.addEventListener('input', () => {
+    const key = $apiKey.value.trim();
+    try { localStorage.setItem(KEY_API, key); } catch (_) {}
+    updateProviderBadge(key);
+  });
+
+  // ── Search hint ───────────────────────────────────────────────────────────
+  $search.addEventListener('input', () => {
+    $searchHint.style.opacity = $search.value ? '0' : '';
+  });
+
+  // ── Recents ───────────────────────────────────────────────────────────────
+  function getRecents() {
+    try { return JSON.parse(localStorage.getItem(KEY_RECENTS)) || []; }
+    catch { return []; }
+  }
+
+  function saveRecent(firm) {
+    let list = getRecents().filter(r => r.toLowerCase() !== firm.toLowerCase());
+    list.unshift(firm);
+    list = list.slice(0, MAX_RECENTS);
+    try { localStorage.setItem(KEY_RECENTS, JSON.stringify(list)); } catch (_) {}
+    renderRecents();
+  }
+
+  function renderRecents() {
+    const list = getRecents();
+    if (!list.length) { $recentsRow.classList.remove('visible'); return; }
+    $recentsRow.classList.add('visible');
+    $chipsWrap.innerHTML = '';
+    list.forEach(firm => {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.textContent = firm; // textContent — XSS-safe
+      chip.addEventListener('click', () => { if (!isLoading) runSearch(firm); });
+      $chipsWrap.appendChild(chip);
+    });
+  }
+
+  // ── Search ────────────────────────────────────────────────────────────────
+  $search.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const val = $search.value.trim();
+      if (val) runSearch(val);
+    }
+  });
+
+  // ── UI state helpers ──────────────────────────────────────────────────────
+  function setLoading(active, firm) {
+    isLoading = active;
+    $search.disabled = active;
+    $loadingRow.classList.toggle('visible', active);
+    if (active) {
+      $loadingText.textContent = `Researching ${firm}\u2026`;
+      $errorBar.classList.remove('visible');
+      $results.classList.remove('visible');
+    } else {
+      $loadingText.textContent = '';
+    }
+  }
+
+  function showError(msg) {
+    $errorBar.textContent = msg;
+    $errorBar.classList.add('visible');
+  }
+
+  // ── Main search flow ──────────────────────────────────────────────────────
+  async function runSearch(firm) {
+    // Cancel any in-flight request
+    if (abortCtrl) { abortCtrl.abort(); abortCtrl = null; }
+
+    const apiKey = $apiKey.value.trim();
+    if (!apiKey) {
+      showError('Paste an API key in the top-right corner. Anthropic (sk-ant-...), OpenAI (sk-...), or Perplexity (pplx-...) all work.');
+      return;
+    }
+
+    $search.value = firm;
+    setLoading(true, firm);
+
+    abortCtrl = new AbortController();
+    const tid = setTimeout(() => abortCtrl.abort(), TIMEOUT_MS);
+
+    try {
+      const data = await fetchIntel(firm, apiKey, abortCtrl.signal);
+      clearTimeout(tid);
+      render(firm, data);
+      saveRecent(firm);
+    } catch (err) {
+      clearTimeout(tid);
+      if (err.name === 'AbortError') {
+        showError('Request timed out. Try again.');
+      } else {
+        showError(err.message || 'Something went wrong. Check your API key and try again.');
+      }
+    } finally {
+      setLoading(false);
+      abortCtrl = null;
+    }
+  }
+
+  // ── API router ────────────────────────────────────────────────────────────
+  async function fetchIntel(firm, apiKey, signal) {
+    const provider = detectProvider(apiKey);
+    if (!provider) {
+      throw new Error('Unrecognized key format. Use an Anthropic (sk-ant-...), OpenAI (sk-...), or Perplexity (pplx-...) key.');
+    }
+    if (provider === 'anthropic')  return fetchWithAnthropic(firm, apiKey, signal);
+    if (provider === 'openai')     return fetchWithOpenAI(firm, apiKey, signal);
+    if (provider === 'perplexity') return fetchWithPerplexity(firm, apiKey, signal);
+  }
+
+  // ── Anthropic (claude-sonnet + built-in web search) ───────────────────────
+  async function fetchWithAnthropic(firm, apiKey, signal) {
+    let res;
+    try {
+      res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST', signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 4096,
+          tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+          system: SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: `Research this prospect for Harvey's sales team: ${firm}` }],
+        }),
+      });
+    } catch (err) {
+      if (err.name === 'AbortError') throw err;
+      throw new Error('Network error. Check your connection and try again.');
+    }
+
+    if (!res.ok) {
+      let msg; try { msg = (await res.json())?.error?.message; } catch (_) {}
+      if (res.status === 401) throw new Error('Invalid Anthropic key. Double-check the key in the top-right corner.');
+      if (res.status === 429) throw new Error('Rate limited by Anthropic. Wait a moment and try again.');
+      throw new Error(msg || `Anthropic API error ${res.status}. Try again.`);
+    }
+
+    const payload = await res.json();
+    if (payload.stop_reason === 'max_tokens') {
+      throw new Error('Response was cut off. Try again — it usually works on retry.');
+    }
+
+    const textBlock = [...(payload.content || [])].reverse().find(b => b.type === 'text');
+    if (!textBlock?.text?.trim()) throw new Error('Model returned no text. Try a different firm name spelling.');
+
+    return parseIntelText(textBlock.text);
+  }
+
+  // ── OpenAI (gpt-4o + Responses API web search) ────────────────────────────
+  async function fetchWithOpenAI(firm, apiKey, signal) {
+    let res;
+    try {
+      res = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST', signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          tools: [{ type: 'web_search_preview' }],
+          instructions: SYSTEM_PROMPT,
+          input: `Research this prospect for Harvey's sales team: ${firm}`,
+        }),
+      });
+    } catch (err) {
+      if (err.name === 'AbortError') throw err;
+      throw new Error('Network error. Check your connection and try again.');
+    }
+
+    if (!res.ok) {
+      let msg; try { msg = (await res.json())?.error?.message; } catch (_) {}
+      if (res.status === 401) throw new Error('Invalid OpenAI key. Double-check the key in the top-right corner.');
+      if (res.status === 429) throw new Error('Rate limited by OpenAI. Wait a moment and try again.');
+      throw new Error(msg || `OpenAI API error ${res.status}. Try again.`);
+    }
+
+    const payload = await res.json();
+
+    // Responses API: output is an array of message/web_search_call items
+    const messages  = (payload.output || []).filter(o => o.type === 'message');
+    const textParts = messages.flatMap(m => (m.content || []).filter(c => c.type === 'output_text'));
+    const lastText  = textParts[textParts.length - 1]?.text?.trim();
+    if (!lastText) throw new Error('OpenAI returned no text. Try again.');
+
+    return parseIntelText(lastText);
+  }
+
+  // ── Perplexity (sonar-pro — web search is built in) ───────────────────────
+  async function fetchWithPerplexity(firm, apiKey, signal) {
+    let res;
+    try {
+      res = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST', signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'sonar-pro',
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'user',   content: `Research this prospect for Harvey's sales team: ${firm}` },
+          ],
+        }),
+      });
+    } catch (err) {
+      if (err.name === 'AbortError') throw err;
+      throw new Error('Network error. Check your connection and try again.');
+    }
+
+    if (!res.ok) {
+      let msg; try { msg = (await res.json())?.error?.message; } catch (_) {}
+      if (res.status === 401) throw new Error('Invalid Perplexity key. Double-check the key in the top-right corner.');
+      if (res.status === 429) throw new Error('Rate limited by Perplexity. Wait a moment and try again.');
+      throw new Error(msg || `Perplexity API error ${res.status}. Try again.`);
+    }
+
+    const payload = await res.json();
+    const text = payload.choices?.[0]?.message?.content?.trim();
+    if (!text) throw new Error('Perplexity returned no text. Try again.');
+
+    return parseIntelText(text);
+  }
+
+  // ── Shared JSON parser (all three providers) ──────────────────────────────
+  function parseIntelText(text) {
+    const raw = text
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/, '')
+      .trim();
+
+    const jsonStr = extractJson(raw);
+    if (!jsonStr) throw new Error('Could not parse research brief. Try again.');
+
+    try { return JSON.parse(jsonStr); }
+    catch (_) { throw new Error('Research brief contained malformed JSON. Try again.'); }
+  }
+
+  // Extracts the first balanced {...} object from a string
+  function extractJson(str) {
+    const start = str.indexOf('{');
+    if (start === -1) return null;
+    let depth = 0;
+    let inStr = false;
+    let escape = false;
+    for (let i = start; i < str.length; i++) {
+      const c = str[i];
+      if (escape) { escape = false; continue; }
+      if (c === '\\' && inStr) { escape = true; continue; }
+      if (c === '"') { inStr = !inStr; continue; }
+      if (inStr) continue;
+      if (c === '{') depth++;
+      if (c === '}') { depth--; if (depth === 0) return str.slice(start, i + 1); }
+    }
+    return null;
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  function render(firm, d) {
+    try {
+      $firmName.textContent  = firm;
+      $resultsMeta.textContent = `Generated ${new Date().toLocaleDateString('en-US', {
+        weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+      })}`;
+
+      // Score
+      const score = Math.min(10, Math.max(1, parseInt(d.readinessScore) || 5));
+      const tier  = score >= 7 ? 'high' : score >= 4 ? 'mid' : 'low';
+
+      $scoreNum.textContent    = score;
+      $scoreNum.className      = `score-num ${tier}`;
+      $scoreLabel.textContent  = String(d.readinessLabel  || '').toUpperCase();
+      $scoreReason.textContent = String(d.readinessReason || '');
+
+      // Animate gauge after a tick so the transition fires
+      $scoreGauge.style.width = '0';
+      $scoreGauge.className   = `score-gauge-fill ${tier}`;
+      requestAnimationFrame(() => {
+        $scoreGauge.style.width = `${(score / 10) * 100}%`;
+      });
+
+      // Text sections
+      $overview.textContent = String(d.overview       || '');
+      $activity.textContent = String(d.recentActivity  || '');
+      $tech.textContent     = String(d.techSignals     || '');
+      $fit.textContent      = String(d.harveyFit       || '');
+
+      // Talking points — normalize to array of non-empty strings
+      let pts = d.talkingPoints;
+      if (!Array.isArray(pts)) {
+        pts = pts ? String(pts).split(/\n+/).filter(Boolean) : [];
+      }
+      pts = pts.slice(0, 3).map(p => String(p || '').trim()).filter(Boolean);
+
+      $tpList.innerHTML = '';
+      pts.forEach((pt, i) => {
+        const row = document.createElement('div');
+        row.className = 'tp';
+
+        const num = document.createElement('span');
+        num.className   = 'tp-num';
+        num.textContent = `0${i + 1}`;
+
+        const txt = document.createElement('span');
+        txt.className   = 'tp-text';
+        txt.textContent = pt; // textContent — XSS-safe
+
+        row.appendChild(num);
+        row.appendChild(txt);
+        $tpList.appendChild(row);
+      });
+
+      $results.classList.add('visible');
+      setTimeout(() => $results.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+
+    } catch (err) {
+      console.error('Render error:', err);
+      showError('Failed to display results. Try again.');
+    }
+  }
+
+  // ── Copy brief ────────────────────────────────────────────────────────────
+  $copyBtn.addEventListener('click', () => {
+    const pts = Array.from($tpList.querySelectorAll('.tp')).map((el, i) =>
+      `${i + 1}. ${el.querySelector('.tp-text').textContent.trim()}`
+    );
+
+    const brief = [
+      `HARVEY PROSPECT INTEL — ${$firmName.textContent}`,
+      $resultsMeta.textContent,
+      '',
+      `READINESS SCORE: ${$scoreNum.textContent}/10 — ${$scoreLabel.textContent}`,
+      $scoreReason.textContent,
+      '',
+      'FIRM OVERVIEW',
+      $overview.textContent,
+      '',
+      'RECENT ACTIVITY',
+      $activity.textContent,
+      '',
+      'AI & TECH SIGNALS',
+      $tech.textContent,
+      '',
+      'HARVEY FIT',
+      $fit.textContent,
+      '',
+      'AE TALKING POINTS',
+      ...pts,
+    ].join('\n');
+
+    const done = (ok) => {
+      $copyBtn.textContent = ok ? 'Copied \u2713' : 'Copy failed';
+      setTimeout(() => { $copyBtn.textContent = 'Copy Brief'; }, 2000);
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(brief).then(() => done(true)).catch(() => fallbackCopy(brief, done));
+    } else {
+      fallbackCopy(brief, done);
+    }
+  });
+
+  // execCommand fallback for file:// and insecure contexts
+  function fallbackCopy(text, done) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      done(ok);
+    } catch (_) {
+      done(false);
+    }
+  }
+</script>
+
+</body>
+</html>
