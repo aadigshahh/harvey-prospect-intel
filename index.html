@@ -620,7 +620,10 @@
     "readinessScore (integer 1-10), readinessLabel (string), readinessReason (one sentence), " +
     "overview (string), recentActivity (string), techSignals (string), " +
     "harveyFit (string), talkingPoints (array of exactly 3 strings). " +
-    "Be specific and factual. Pull real data. No filler.";
+    "Be specific and factual. Pull real data. No filler. " +
+    "For readinessScore: be conservative. Firms with no public AI initiatives, secretive cultures, " +
+    "or anti-technology reputations should score 1-3. Only score 7+ if there is concrete public evidence " +
+    "of AI adoption or innovation investment. Do not infer readiness from deal volume or prestige alone.";
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   const $apiKey        = document.getElementById('apiKeyInput');
@@ -928,8 +931,28 @@
     const jsonStr = extractJson(raw);
     if (!jsonStr) throw new Error('Could not parse research brief. Try again.');
 
-    try { return JSON.parse(jsonStr); }
+    let parsed;
+    try { parsed = JSON.parse(jsonStr); }
     catch (_) { throw new Error('Research brief contained malformed JSON. Try again.'); }
+
+    return stripCitations(parsed);
+  }
+
+  // Strip <cite index="...">...</cite> tags that leak from web search results
+  function stripCitations(obj) {
+    if (typeof obj === 'string') {
+      return obj
+        .replace(/<cite[^>]*>/gi, '')
+        .replace(/<\/cite>/gi, '')
+        .trim();
+    }
+    if (Array.isArray(obj))  return obj.map(stripCitations);
+    if (obj && typeof obj === 'object') {
+      const out = {};
+      for (const k of Object.keys(obj)) out[k] = stripCitations(obj[k]);
+      return out;
+    }
+    return obj;
   }
 
   // Extracts the first balanced {...} object from a string
