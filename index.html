@@ -621,6 +621,9 @@
     "overview (string), recentActivity (string), techSignals (string), " +
     "harveyFit (string), talkingPoints (array of exactly 3 strings). " +
     "Be specific and factual. Pull real data. No filler. " +
+    "If the prospect is not a law firm (e.g. a bank, PE firm, tech company, or corporation), treat it as " +
+    "a potential in-house legal team prospect — assess their legal department size, complexity, and Harvey fit accordingly. " +
+    "Always return the JSON structure regardless of what type of organization is searched. " +
     "For readinessScore: be conservative. Firms with no public AI initiatives, secretive cultures, " +
     "or anti-technology reputations should score 1-3. Only score 7+ if there is concrete public evidence " +
     "of AI adoption or innovation investment. Do not infer readiness from deal volume or prestige alone.";
@@ -773,7 +776,15 @@
     const tid = setTimeout(() => abortCtrl.abort(), TIMEOUT_MS);
 
     try {
-      const data = await fetchIntel(firm, apiKey, abortCtrl.signal);
+      let data;
+      try {
+        data = await fetchIntel(firm, apiKey, abortCtrl.signal);
+      } catch (firstErr) {
+        if (firstErr.name === 'AbortError') throw firstErr;
+        // Auto-retry once on parse/network errors
+        $loadingText.textContent = `Retrying\u2026`;
+        data = await fetchIntel(firm, apiKey, abortCtrl.signal);
+      }
       clearTimeout(tid);
       render(firm, data);
       saveRecent(firm);
