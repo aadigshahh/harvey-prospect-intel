@@ -73,6 +73,13 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .api-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .api-label {
@@ -85,19 +92,26 @@
 
     .api-input {
       background: var(--surface);
-      border: 1px solid var(--border);
+      border: 1px solid rgba(196,168,130,0.45);
       color: var(--text);
       font-family: inherit;
       font-size: 12px;
       font-weight: 300;
       padding: 7px 12px;
-      width: 220px;
+      width: 240px;
       outline: none;
       transition: border-color 0.12s;
       letter-spacing: 0.02em;
     }
     .api-input:focus { border-color: var(--accent); }
-    .api-input::placeholder { color: rgba(240,237,232,0.18); }
+    .api-input::placeholder { color: rgba(240,237,232,0.35); }
+
+    .api-helper {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
 
     /* ── Main ────────────────────────────────────────────────── */
     main {
@@ -487,14 +501,17 @@
   </div>
   <div class="api-row">
     <span class="api-label">API Key</span>
-    <input
-      id="apiKeyInput"
-      class="api-input"
-      type="password"
-      placeholder="Anthropic, OpenAI, or Perplexity key"
-      autocomplete="off"
-      spellcheck="false"
-    />
+    <div class="api-col">
+      <input
+        id="apiKeyInput"
+        class="api-input"
+        type="password"
+        placeholder="Anthropic, OpenAI, or Perplexity key"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <span class="api-helper">Required to enable live search</span>
+    </div>
     <span id="providerBadge" class="provider-badge"></span>
   </div>
 </header>
