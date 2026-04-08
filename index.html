@@ -105,6 +105,13 @@
     }
     .api-input:focus { border-color: var(--accent); }
     .api-input::placeholder { color: rgba(240,237,232,0.35); }
+    .api-input.needs-key {
+      animation: key-pulse 2s ease-in-out 3;
+    }
+    @keyframes key-pulse {
+      0%, 100% { border-color: rgba(196,168,130,0.45); }
+      50%       { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(196,168,130,0.2); }
+    }
 
     .api-helper {
       font-family: 'JetBrains Mono', monospace;
@@ -695,15 +702,14 @@
 
   // ── Init ──────────────────────────────────────────────────────────────────
   (function init() {
-    // URL param takes priority — lets you share a pre-keyed link
-    const urlKey = new URLSearchParams(location.search).get('key');
-    const key    = urlKey || localStorage.getItem(KEY_API) || '';
+    const key = localStorage.getItem(KEY_API) || '';
     if (key) {
       $apiKey.value = key;
-      try { localStorage.setItem(KEY_API, key); } catch (_) {}
       updateProviderBadge(key);
-      // Clean key out of URL bar without reloading so it's not in browser history
-      if (urlKey) history.replaceState(null, '', location.pathname);
+    } else {
+      // Pulse the input so first-time visitors know where to start
+      $apiKey.classList.add('needs-key');
+      $apiKey.addEventListener('animationend', () => $apiKey.classList.remove('needs-key'), { once: true });
     }
     renderRecents();
   })();
